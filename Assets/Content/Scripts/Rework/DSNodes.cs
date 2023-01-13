@@ -40,8 +40,8 @@ public class LinearNode<T> : NodeGeneric<T>
     }
 }
 
-public class TreeNode<T> : NodeGeneric<T>
-{
-    public TreeNode<T> parent;
-    public TreeNode<T>[] children;
-}
+//public class TreeNode<T> : NodeGeneric<T>
+//{
+    //public TreeNode<T> parent;
+    //public TreeNode<T>[] children;
+//}

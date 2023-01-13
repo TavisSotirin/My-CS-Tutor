@@ -1,7 +1,10 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Reflection.Emit;
 using System.Threading;
+using TMPro;
+using Unity.VisualScripting;
 using UnityEngine;
 
 
@@ -28,8 +31,6 @@ public abstract class DS2 : MonoBehaviour
 
     protected string varName;
     protected IDSNode2 head;
-
-    protected static Type genericArg1;
 
 
     public DS2 Initialize(DSStructureType _sType, DSDataType _dType, string _name = "")
@@ -79,8 +80,6 @@ public class DSLinkedList2 : DS2
     override protected void InitializeInternal(string _name)
     {
         varName = (_name.Equals("") ? "Linked_List_Var_" + globalCount++ : _name);
-
-        genericArg1 = typeof(int);
 
         head = NewElement();
 
@@ -416,7 +415,7 @@ public static class UIShape
     private static GameObject lastLine = null;
 
     // NOTE: Not thread safe!
-    public static GameObject? GetLastShape(Shapes shape)
+    public static GameObject GetLastShape(Shapes shape)
     {
         switch (shape)
         {
@@ -500,11 +499,13 @@ public static class UIShape
         Mesh mesh = new Mesh();
         lr.BakeMesh(mesh);
         mf.sharedMesh = mesh;
+        mf.sharedMesh.name = "SimpleRect";
         GameObject.Destroy(lr);
 
         rect.sizeDelta = mesh.bounds.extents * 2;
 
         lastRect = child;
+        AddTextComp(ref child, new Rect(new Vector2(0,0), mesh.bounds.size));
         return child;
     }
 
@@ -639,5 +640,28 @@ public static class UIShape
 
         lastLine = child;
         return child;
+    }
+
+    private static void AddTextComp(ref GameObject shape, Rect posRect)
+    {
+        //var mf = shape.GetComponent<MeshFilter>();
+        //if (mf == null) return;
+
+        var txt = new GameObject(shape.name + "_inText").AddComponent<TextMeshProUGUI>();
+        var tRect = txt.GetComponent<RectTransform>();
+        tRect.SetParent(shape.transform);
+
+        // TEMP 
+        txt.text = UIShape.nodeCount.ToString();
+        txt.fontSize = 12;
+        txt.alignment = TextAlignmentOptions.Center;
+
+        tRect.anchorMin = Vector2.zero;
+        tRect.anchorMax = Vector2.one;
+        tRect.anchoredPosition = Vector2.zero;
+        tRect.sizeDelta = new Vector2(posRect.size.x, posRect.size.y);
+
+        txt.enableAutoSizing = true;
+        txt.fontSizeMin = 6;
     }
 }
