@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Threading;
 using UnityEngine;
 
 
@@ -41,8 +42,6 @@ public abstract class DS2 : MonoBehaviour
         return this;
     }
 
-    public abstract ref IDSNode2 AddElementRef();
-
     protected abstract void InitializeInternal(string _name);
 
     protected abstract void Destroy();
@@ -75,15 +74,6 @@ public class DSLinkedList2 : DS2
             default:
                 return null;
         }
-    }
-
-    private IDSNode2 AddElement(IDSNode2 newElement)
-    {
-        // always adds to head for 
-
-        DSLinkedList2.Node<IDSNode2> x = new() ;
-
-        head = newElement;
     }
 
     override protected void InitializeInternal(string _name)
