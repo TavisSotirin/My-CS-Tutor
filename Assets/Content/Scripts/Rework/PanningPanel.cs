@@ -32,13 +32,22 @@ public class PanningPanel : MonoBehaviour, IPointerDownHandler, IPointerUpHandle
         viewRect.anchorMin = Vector2.zero;
         viewRect.pivot = Vector2.zero;
 
-        int size = 10;
+        DEBUG_BuildStruct();
+    }
 
-        for (int i = 0; i < 4; i++)
+    public GameObject NodePrefab;
+
+    private void DEBUG_BuildStruct()
+    {
+        int[] arr = {10,20,30,40,50,100};
+        int nodeOffset = 0;
+
+        for (int i = 0; i < arr.Length; i++)
         {
-            var shape = UIShape.DrawRect(size, size, viewport.transform, .15f, false);
-            var sRect = shape.GetComponent<RectTransform>();
-            sRect.anchoredPosition = new Vector2(size * i, 0);
+            var newNode = GameObject.Instantiate(NodePrefab, viewRect).GetComponent<DSViewNode>();
+
+            newNode.setText(arr[i].ToString(), i.ToString());
+            newNode.transform.position = new Vector3(i * newNode.bounds.size.x + nodeOffset,0,0);
         }
     }
 
