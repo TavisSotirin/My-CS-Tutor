@@ -9,9 +9,16 @@ using UnityEngine.UI;
 using UnityEngine.UIElements;
 
 [RequireComponent(typeof(RectTransform))]
-public class PanningPanel : MonoBehaviour, IPointerDownHandler, IPointerUpHandler, IPointerMoveHandler, IPointerExitHandler
+public class PanningPanel : MonoBehaviour, IPointerDownHandler, IPointerUpHandler, IPointerMoveHandler, IPointerExitHandler, IScrollHandler
 {
-    public GameObject viewport;
+    [SerializeField]
+    private GameObject viewport;
+    private RectTransform viewRect;
+    private bool inputDragging = false;
+    private PointerEventData lastEventData;
+
+    public float minScale = 1f;
+    public float maxScale = 10f;
 
     private void Start()
     {
@@ -20,17 +27,10 @@ public class PanningPanel : MonoBehaviour, IPointerDownHandler, IPointerUpHandle
 
     private void Initialize()
     {
-        
-        /*
-        GameObject viewPanel = new("PanningView", typeof(RectTransform), typeof(EventTrigger));
-        viewPanel.transform.SetParent(this.transform);
-        */
-
-        var rect = viewport.GetComponent<RectTransform>();
-        rect.anchoredPosition = rect.sizeDelta = Vector2.zero;
-        rect.anchorMin = Vector2.zero;
-        rect.anchorMax = Vector2.zero;
-        rect.pivot = Vector2.zero;
+        viewRect = viewport.GetComponent<RectTransform>();
+        viewRect.anchoredPosition = viewRect.sizeDelta = Vector2.zero;
+        viewRect.anchorMin = Vector2.zero;
+        viewRect.pivot = Vector2.zero;
 
         int size = 10;
 
@@ -38,65 +38,56 @@ public class PanningPanel : MonoBehaviour, IPointerDownHandler, IPointerUpHandle
         {
             var shape = UIShape.DrawRect(size, size, viewport.transform, .15f, false);
             var sRect = shape.GetComponent<RectTransform>();
-            //sRect.SetParent(viewport.transform);
             sRect.anchoredPosition = new Vector2(size * i, 0);
         }
     }
 
-    //Vector2 lastMousePos = Vector2.zero;
-    bool drag = false;
-    PointerEventData lastEvent;
-
+    // Set dragging bool and event data to start drag
     public void OnPointerDown(PointerEventData eventData)
     {
-        print("Begin drag called in pan panel - " + this.name);
-        eventData.dragging = true;
-        //eventData.pressPosition = viewport.GetComponent<RectTransform>().anchoredPosition;
-        //lastMousePos = eventData.pressPosition;
-        eventData.useDragThreshold = false;
-
-        drag = true;
-        lastEvent = eventData;
+        inputDragging = true;
+        lastEventData = eventData;
     }
 
+    // Set dragging bool to stop drag
     public void OnPointerUp(PointerEventData eventData)
     {
-        print("End drag called in pan panel");
-        //print(eventData.pressPosition);
-        //print(eventData.position);
-        eventData.dragging = false;
-
-        drag = false;
-        lastEvent = null;
+        inputDragging = false;
+        lastEventData = null;
     }
 
+    // Needed?
     public void OnPointerMove(PointerEventData eventData)
     {
-        if (eventData.dragging)
-        {
-            viewport.GetComponent<RectTransform>().anchoredPosition += eventData.delta;
-            //lastMousePos = eventData.position;
-        }
     }
-
+    // Needed?
     public void OnPointerExit(PointerEventData eventData)
     {
-        eventData.dragging = true;
+    }
+
+    // Scale viewport with scroll input, bounded to min/max scale vars
+    public void OnScroll(PointerEventData eventData)
+    {
+        if (!inputDragging)
+        {
+            viewport.GetComponent<RectTransform>().localScale += new Vector3(eventData.scrollDelta.y, eventData.scrollDelta.y, 0);
+
+            // Scale bounds
+            if (viewRect.localScale.y > maxScale || viewRect.localScale.x > maxScale)
+                viewRect.localScale = new Vector3(maxScale, maxScale, 1);
+            else if (viewRect.localScale.y < minScale || viewRect.localScale.x < minScale)
+                viewRect.localScale = new Vector3(minScale, minScale, 1);
+        }
     }
 
     private void Update()
     {
-        if(drag)
-        {
-            dragUpdate();
-        }
+        if(inputDragging) dragUpdate();
     }
 
     private void dragUpdate()
     {
-        if (lastEvent != null)
-        {
-            print(lastEvent.delta);
-        }
+        if (lastEventData != null)
+            viewRect.anchoredPosition += lastEventData.delta;
     }
 }
