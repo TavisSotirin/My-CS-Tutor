@@ -7,7 +7,7 @@ using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
 [RequireComponent(typeof(Button))]
-public class DSViewNode : MonoBehaviour, IPointerDownHandler, IPointerUpHandler, IPointerMoveHandler, IPointerEnterHandler
+public class DSViewNode : MonoBehaviour, IPointerDownHandler, IPointerUpHandler, IPointerEnterHandler, IPointerExitHandler
 {
     [SerializeField]
     private Button viewNode;
@@ -19,7 +19,12 @@ public class DSViewNode : MonoBehaviour, IPointerDownHandler, IPointerUpHandler,
 
     public void OnPointerEnter(PointerEventData eventData)
     {
-        print($"Pointer entered {this.name} with text {displayText.text}");
+        viewNode.image.color = Color.green;
+    }
+
+    public void OnPointerExit(PointerEventData eventData)
+    {
+        viewNode.image.color = Color.white;
     }
 
 
