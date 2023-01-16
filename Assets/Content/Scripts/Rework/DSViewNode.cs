@@ -7,7 +7,7 @@ using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
 [RequireComponent(typeof(Button))]
-public class DSViewNode : MonoBehaviour, IPointerDownHandler, IPointerUpHandler, IPointerMoveHandler
+public class DSViewNode : MonoBehaviour, IPointerDownHandler, IPointerUpHandler, IPointerMoveHandler, IPointerEnterHandler
 {
     [SerializeField]
     private Button viewNode;
@@ -15,6 +15,13 @@ public class DSViewNode : MonoBehaviour, IPointerDownHandler, IPointerUpHandler,
     private TextMeshProUGUI displayText;
     [SerializeField]
     private TextMeshProUGUI captionText;
+
+
+    public void OnPointerEnter(PointerEventData eventData)
+    {
+        print($"Pointer entered {this.name} with text {displayText.text}");
+    }
+
 
     public Bounds bounds 
     { 

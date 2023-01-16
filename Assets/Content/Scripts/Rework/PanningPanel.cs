@@ -9,7 +9,7 @@ using UnityEngine.UI;
 using UnityEngine.UIElements;
 
 [RequireComponent(typeof(RectTransform))]
-public class PanningPanel : MonoBehaviour, IPointerDownHandler, IPointerUpHandler, IPointerMoveHandler, IPointerExitHandler, IScrollHandler
+public class PanningPanel : MonoBehaviour, IPointerDownHandler, IPointerUpHandler, IPointerMoveHandler, IPointerExitHandler, IScrollHandler, IPointerEnterHandler
 {
     [SerializeField]
     private GameObject viewport;
@@ -19,6 +19,14 @@ public class PanningPanel : MonoBehaviour, IPointerDownHandler, IPointerUpHandle
 
     public float minScale = 1f;
     public float maxScale = 10f;
+
+
+    public void OnPointerEnter(PointerEventData eventData)
+    {
+        print($"Pointer entered {this.name}");
+    }
+
+
 
     private void Start()
     {
