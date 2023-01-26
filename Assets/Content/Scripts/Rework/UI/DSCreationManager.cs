@@ -10,7 +10,7 @@ public class DSCreationManager : MonoBehaviour
 {
     private RectTransform viewPanel;
     private RectTransform optionsPanel;
-    private Button finalizeButton;
+    private DSButton finalizeButton;
 
     public struct CreationOption
     {
@@ -28,6 +28,7 @@ public class DSCreationManager : MonoBehaviour
     {
     }
 
+    // TODO: Make option button prefab
     public void setup(CreationOption[] options, CreationOption finalizeOption, Vector2 creationPanelsize)
     {
         var rect = GetComponent<RectTransform>();
@@ -36,59 +37,69 @@ public class DSCreationManager : MonoBehaviour
         rect.sizeDelta = creationPanelsize;
 
         float margin = Mathf.Ceil(rect.sizeDelta.y * .02f);
-        float size = Mathf.Min(Mathf.Ceil(rect.sizeDelta.x * (1 / 8)), Mathf.Ceil(rect.sizeDelta.y * (1 / 6)));
+        
+        print(GOLIB.GetTrueScreenSizeAndPosition(rect.gameObject));
+        float size = Mathf.Min(Mathf.Ceil(rect.sizeDelta.x * (1f / 8f)), Mathf.Ceil(rect.sizeDelta.y * (1f / 6f)));
         Vector2 buttonSize = new Vector2(size, size);
+
+        print(margin);
+        print(size);
 
         // Add view panel
         viewPanel = new GameObject("DSCreationView", typeof(RectTransform)).GetComponent<RectTransform>();
         viewPanel.SetParent(gameObject.transform);
 
+        viewPanel.AddComponent<Image>().color = Color.yellow;
+
         viewPanel.anchorMax = new Vector2(1,1);
         viewPanel.anchorMin = Vector2.zero;
         viewPanel.pivot = new Vector2(0.5f, 0.5f);
 
-        viewPanel.anchoredPosition = Vector2.zero;
-        viewPanel.sizeDelta = new Vector2(0, size + margin);
+        viewPanel.sizeDelta = new Vector2(-margin*2, -(size + margin));
+        viewPanel.anchoredPosition = new Vector2(0, (size + margin) * 0.5f);
 
         // Add options panel
         optionsPanel = new GameObject("DSCreationsOptions", typeof(RectTransform)).GetComponent<RectTransform>();
         optionsPanel.SetParent(gameObject.transform);
-        
+
+        optionsPanel.AddComponent<Image>().color = Color.blue;
+
         optionsPanel.anchorMax = new Vector2(1, 0);
         optionsPanel.anchorMin = Vector2.zero;
         optionsPanel.pivot = new Vector2(0.5f, 0);
-        
-        optionsPanel.anchoredPosition = Vector2.zero;
-        optionsPanel.sizeDelta = new Vector2(size + margin, size);
+
+        optionsPanel.sizeDelta = new Vector2(-(size + margin + margin),size);
+        optionsPanel.anchoredPosition = new Vector2(-(size + margin + margin) * .5f + margin,0);
+
 
         // Add finalize button
-        finalizeButton = new GameObject("Finalize", typeof(Button), typeof(RectTransform)).GetComponent<Button>();
-        var finalizeRect = finalizeButton.GetComponent<RectTransform>();
+        finalizeButton = GameObject.Instantiate(DSPrefabs.GetPrefab("Button"), gameObject.transform).GetComponent<DSButton>();
+        finalizeButton.gameObject.name = "Button_" + finalizeOption.text;
 
-        finalizeRect.anchorMax = finalizeRect.anchorMin = finalizeRect.pivot = new Vector2(1,0);
-        finalizeRect.anchoredPosition = Vector2.zero;
-        finalizeRect.sizeDelta = buttonSize;
+        finalizeButton.rect.anchorMax = finalizeButton.rect.anchorMin = finalizeButton.rect.pivot = new Vector2(1,0);
+        finalizeButton.rect.anchoredPosition = Vector2.zero;
+        finalizeButton.rect.sizeDelta = buttonSize;
 
-        finalizeButton.onClick.AddListener(finalizeOption.action);
-        finalizeButton.GetComponent<TextMeshProUGUI>().text = finalizeOption.text;
+        finalizeButton.addListener(finalizeOption.action);
+        finalizeButton.setText(finalizeOption.text);
 
         // Populate options panel
         float xOffset = margin;
-
+        
         foreach (var option in options)
         {
-            var newButton = new GameObject($"{option.text}_opButton").AddComponent<Button>();
-            newButton.GetComponent<TextMeshProUGUI>().text = option.text;
-            newButton.onClick.AddListener(option.action);
+            var newButton = GameObject.Instantiate(DSPrefabs.GetPrefab("Button"), optionsPanel).GetComponent<DSButton>();
+            newButton.name = $"Button_{option.text}";
+            newButton.addListener(option.action);
+            newButton.setText(option.text);
 
-            var bRect = newButton.GetComponent<RectTransform>();
-            bRect.SetParent(gameObject.transform);
-            bRect.anchorMin = bRect.anchorMax = bRect.pivot = new Vector2(0, .5f);
-            bRect.anchoredPosition = new Vector2(xOffset, 0);
-            bRect.sizeDelta = buttonSize * .9f;
+            newButton.rect.anchorMin = newButton.rect.anchorMax = newButton.rect.pivot = new Vector2(0, .5f);
+            newButton.rect.anchoredPosition = new Vector2(xOffset, 0);
+            newButton.rect.sizeDelta = buttonSize * .75f;
 
             xOffset += margin + size;
         }
+        
 
         // Set default view
     }
