@@ -1,3 +1,4 @@
+using Mono.Cecil;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -12,14 +13,26 @@ public class DSCreationManager : MonoBehaviour
     private RectTransform optionsPanel;
     private DSButton finalizeButton;
 
+    public enum OptionType
+    {
+        USER_INPUT_TYPE,
+        USER_INPUT_INT,
+        USER_INPUT_FREE,
+        BOOL,
+        DISPLAY_ONLY,
+        BUTTON
+    }
+
     public struct CreationOption
     {
         public String text;
+        public OptionType type;
         public UnityEngine.Events.UnityAction action;
 
-        public CreationOption(String _text, UnityEngine.Events.UnityAction _action)
+        public CreationOption(String _text, OptionType _type, UnityEngine.Events.UnityAction _action)
         {
             text = _text;
+            type = _type;
             action = _action;
         }
     }

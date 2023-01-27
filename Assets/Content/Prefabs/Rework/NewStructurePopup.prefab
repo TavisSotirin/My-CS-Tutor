@@ -119,7 +119,7 @@ MonoBehaviour:
     m_PressedTrigger: Pressed
     m_SelectedTrigger: Selected
     m_DisabledTrigger: Disabled
-  m_Interactable: 1
+  m_Interactable: 0
   m_TargetGraphic: {fileID: 3790707448543679517}
   m_Template: {fileID: 7634311199164893641}
   m_CaptionText: {fileID: 1120881248246176965}
@@ -973,8 +973,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   structDropdown: {fileID: 827667533857028669}
   typeDropdown: {fileID: 174859815401713579}
-  finalizeButton: {fileID: 0}
-  DSViewNodePrefab: {fileID: 6745109940784086695, guid: 610a16a81a9229748b3397e449e891da, type: 3}
+  creationManager: {fileID: 1018338694692071049}
 --- !u!1 &4854586006490267361
 GameObject:
   m_ObjectHideFlags: 0
@@ -2603,6 +2602,17 @@ PrefabInstance:
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 4069e362325d862478f99ab26e67f8c3, type: 3}
+--- !u!114 &1018338694692071049 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 4110240702059740079, guid: 4069e362325d862478f99ab26e67f8c3, type: 3}
+  m_PrefabInstance: {fileID: 3975376105983483174}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 025942af819b8a5408f2f0f93a770e24, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!224 &5617472201542390978 stripped
 RectTransform:
   m_CorrespondingSourceObject: {fileID: 8853543285925890532, guid: 4069e362325d862478f99ab26e67f8c3, type: 3}
