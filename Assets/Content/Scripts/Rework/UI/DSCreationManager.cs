@@ -7,6 +7,7 @@ using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.UI;
 
+// TODO: set up option panel generation given list from DataStructure class
 public class DSCreationManager : MonoBehaviour
 {
     private RectTransform viewPanel;
@@ -41,7 +42,6 @@ public class DSCreationManager : MonoBehaviour
     {
     }
 
-    // TODO: Make option button prefab
     public void setup(CreationOption[] options, CreationOption finalizeOption, Vector2 creationPanelsize)
     {
         var rect = GetComponent<RectTransform>();
@@ -83,7 +83,6 @@ public class DSCreationManager : MonoBehaviour
 
         optionsPanel.sizeDelta = new Vector2(-(size + margin + margin),size);
         optionsPanel.anchoredPosition = new Vector2(-(size + margin + margin) * .5f + margin,0);
-
 
         // Add finalize button
         finalizeButton = GameObject.Instantiate(DSPrefabs.GetPrefab("Button"), gameObject.transform).GetComponent<DSButton>();

@@ -1,10 +1,11 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using TMPro;
 using Unity.VisualScripting;
 using Unity.VisualScripting.FullSerializer;
+using UnityEditor;
 using UnityEngine;
-using static UnityEngine.RuleTile.TilingRuleOutput;
 
 public class DSPrefabs : MonoBehaviour
 {
@@ -18,9 +19,22 @@ public class DSPrefabs : MonoBehaviour
     [SerializeField]
     private PrefabStruct[] prefabs;
 
-    // Singleton class with static operations
+    // MonoBehavior singleton class with static operations
     private static DSPrefabs _instance;
-    public static DSPrefabs Instance { get { if (_instance == null) _instance = new DSPrefabs(); return _instance; } }
+    public static DSPrefabs Instance 
+    { 
+        get 
+        {
+            if (_instance == null)
+            {
+                _instance = GameObject.FindGameObjectWithTag("PrefabManager").GetComponent<DSPrefabs>();
+                if (_instance == null)
+                    throw new Exception("Prefab manager not in scene");
+            }
+            
+            return _instance; 
+        } 
+    }
     private DSPrefabs() { }
 
     public static GameObject GetPrefab(int _PF_index)

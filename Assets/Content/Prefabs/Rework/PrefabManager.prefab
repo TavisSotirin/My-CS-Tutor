@@ -12,7 +12,7 @@ GameObject:
   - component: {fileID: 8948472143120619163}
   m_Layer: 0
   m_Name: PrefabManager
-  m_TagString: Untagged
+  m_TagString: PrefabManager
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -51,6 +51,3 @@ MonoBehaviour:
     prefab: {fileID: 3050994461794886257, guid: 2158b1dabbea348468473a8defc4808f, type: 3}
   - name: ViewNode_Linear
     prefab: {fileID: 6745109940784086695, guid: 610a16a81a9229748b3397e449e891da, type: 3}
-  PF_Button: {fileID: 7737068913136473664, guid: 9cea7feca30794e43b06be746951a3d9, type: 3}
-  PF_PanningPanel: {fileID: 3050994461794886257, guid: 2158b1dabbea348468473a8defc4808f, type: 3}
-  PF_DSViewNode: {fileID: 6745109940784086695, guid: 610a16a81a9229748b3397e449e891da, type: 3}
