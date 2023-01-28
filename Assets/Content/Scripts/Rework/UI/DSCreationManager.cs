@@ -50,13 +50,8 @@ public class DSCreationManager : MonoBehaviour
         rect.sizeDelta = creationPanelsize;
 
         float margin = Mathf.Ceil(rect.sizeDelta.y * .02f);
-        
-        print(GOLIB.GetTrueScreenSizeAndPosition(rect.gameObject));
         float size = Mathf.Min(Mathf.Ceil(rect.sizeDelta.x * (1f / 8f)), Mathf.Ceil(rect.sizeDelta.y * (1f / 6f)));
         Vector2 buttonSize = new Vector2(size, size);
-
-        print(margin);
-        print(size);
 
         // Add view panel
         viewPanel = new GameObject("DSCreationView", typeof(RectTransform)).GetComponent<RectTransform>();

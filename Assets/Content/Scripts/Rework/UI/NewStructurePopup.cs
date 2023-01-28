@@ -8,6 +8,7 @@ using UnityEditor.AssetImporters;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
+using static UnityEditor.Progress;
 
 // TODO: work on DS core classes. Add option panel settings (valid types, creation manager input, display input, etc.) to each structure to pass here
 public class NewStructurePopup : MonoBehaviour
@@ -18,6 +19,7 @@ public class NewStructurePopup : MonoBehaviour
     private DSDropdown typeDropdown;
     [SerializeField]
     private DSCreationManager creationManager;
+    private DataStructure activeStructure;
 
     [SerializeField]
     public TMP_Dropdown.OptionDataList list;
@@ -33,12 +35,8 @@ public class NewStructurePopup : MonoBehaviour
         //gameObject.SetActive(false);
         gameObject.name = "NewStructurePopup";
 
-        DSCreationManager.CreationOption[] options = { new("Option1", DSCreationManager.OptionType.BUTTON, clearAll) };
+        //DSCreationManager.CreationOption[] options = { new("Option1", DSCreationManager.OptionType.BUTTON, clearAll) };
         
-        var creationPanelSize = GetComponent<RectTransform>().sizeDelta;
-        creationPanelSize.y -= Mathf.Abs(structDropdown.GetComponent<RectTransform>().anchoredPosition.y) * 2 + structDropdown.GetComponent<RectTransform>().sizeDelta.y;
-        creationManager.setup(options, new DSCreationManager.CreationOption("Finalize", DSCreationManager.OptionType.BUTTON, finalize), creationPanelSize);
-
         structDropdown.onValueChanged.AddListener(onStructChange);
         structDropdown.setDropdownOptions(new string[] { "Choose Structure" });
         structDropdown.onClickExternal = () =>
@@ -59,14 +57,19 @@ public class NewStructurePopup : MonoBehaviour
         GameObject.Destroy(gameObject);
     }
 
-    // TODO: Default selection not counting as change and not triggering type dropdown activation
-    // Add on select extension?
     private void onStructChange(int value)
     {
         if (!typeDropdown.interactable)
         {
             typeDropdown.setDropdownOptions(Enum.GetNames(typeof(DSLIB.DataTypes)));
             typeDropdown.interactable = true;
+
+            var options = DSLIB.tryCreate(structDropdown.options.ToArray()[value].text, ref activeStructure);
+            print(activeStructure.structureType);
+
+            var creationPanelSize = GetComponent<RectTransform>().sizeDelta;
+            creationPanelSize.y -= Mathf.Abs(structDropdown.GetComponent<RectTransform>().anchoredPosition.y) * 2 + structDropdown.GetComponent<RectTransform>().sizeDelta.y;
+            creationManager.setup(options, new DSCreationManager.CreationOption("Finalize", DSCreationManager.OptionType.BUTTON, finalize), creationPanelSize);
         }
 
         typeDropdown.setDropdownOptions(DSLIB.GetValidDataTypes(structDropdown.options.ToArray()[value].text));
