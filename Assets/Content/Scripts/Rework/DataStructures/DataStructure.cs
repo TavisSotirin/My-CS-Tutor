@@ -6,36 +6,76 @@ using System.Runtime;
 using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.EventSystems;
+using UnityEngine.Rendering;
+using UnityEngine.UIElements;
+using static ADSStatic;
 
-public abstract class DataStructure
+// ?UPDATE?: Make interface insteaad of abstract class
+public abstract class ADataStructure
 {
-    // Options for user input UI creation manager, unique per structure, to some degree
-    public DSCreationManager.CreationOption[] creationOptions { get; }
-
-    // ADD: Structure 'Active options'
-
     // Valid options this structure can accomodate
+    // ?UPDATE?: Currently stored on individual structures, but some may be redundant. Consider consolidated static storage in DSLIB
     public virtual DSLIB.Structures structureType { get; }
-    public static DSLIB.DataTypes[] dataTypes { get; }
-    public virtual DSLIB.SortAlgorithms[] validSorts { get; }
-    public virtual DSLIB.SearchAlgorithms[] validSearches { get; }
+    public virtual DSLIB.DataTypes[] dataTypes { get; }
+    public virtual DSLIB.SortAlgorithms[] sortAlgorithms { get; }
+    public virtual DSLIB.SearchAlgorithms[] searchAlgorithms { get; }
 
+    // Instantiate null ref, Initialize instantiated ref
+    public static DSCreationManager.CreationOption[] Instantiate(ref ADataStructure target) { return null; }
+    public abstract void Initialize(ref ADataStructure target);
 
-    public virtual DSCreationManager.CreationOption[] tryCreate(ref DataStructure target)
+    //public abstract //DrawInstructions draw(ref ADataStructure target);
+    protected ISupportStructure supportStructure;
+}
+
+public interface ISupportStructure
+{
+
+}
+
+public abstract class ADSLinear : ADataStructure
+{
+    public int length { get; protected set; }
+}
+
+public abstract class ADSStatic : ADSLinear
+{
+    protected class ADSSupportStructure<T> : ISupportStructure where T : IComparable<T>
     {
-        throw new AmbiguousImplementationException("Cannot call creation options from base DataStructure class");
+        public T[] array;
+    }
+
+    protected virtual void Initialize<T>() where T : IComparable<T>
+    {
+        supportStructure = new ADSSupportStructure<T>();
+        ((ADSSupportStructure<T>)supportStructure).array = new T[length];
     }
 }
 
-public class DSArray : DataStructure
+public abstract class ADSDynamic : ADSLinear
+{
+    
+}
+
+public abstract class ADSNonlinear : ADataStructure
+{
+
+}
+
+public abstract class ADSTree : ADSNonlinear
+{
+    public int height { get; protected set; }
+}
+
+public class DSArray : ADSStatic
 {
     //public override DSLIB.Structures structureType { get { return DSLIB.Structures.ARRAY; } }
     override public DSLIB.Structures structureType { get { return DSLIB.Structures.ARRAY; } }
-    new public static DSLIB.DataTypes[] dataTypes { get { return DSLIB.typeArray; } }
+    override public DSLIB.DataTypes[] dataTypes { get { return DSLIB.typeArray; } }
 
     private DSArray() {  }
 
-    new public static DSCreationManager.CreationOption[] tryCreate(ref DataStructure target)
+    new public static DSCreationManager.CreationOption[] Instantiate(ref ADataStructure target)
     {
         target = new DSArray();
         DSCreationManager.CreationOption[] cOptions = 
@@ -46,6 +86,22 @@ public class DSArray : DataStructure
             };
 
         return cOptions;
+    }
+
+    // TODO: Need to get type and length data from user to correctly create base
+    override public void Initialize(ref ADataStructure target)
+    {
+        if (target is DSArray)
+        {
+            base.Initialize<int>();
+        }
+        else
+            throw new Exception("Invalid structure passed to DSArray Init");
+    }
+
+    public static void ForceInit(ref DSArray target, int _length)
+    {
+        
     }
 
     private void cSize()
@@ -64,6 +120,22 @@ public class DSArray : DataStructure
         throw new Exception("IT WORKED BUTTON ERROR ON CLEAR FROM OPTIONS!");
     }
 }
+
+public class DSLinkedList : ADSDynamic
+{
+
+}
+
+public class DSBinaryTree : ADSTree
+{
+
+}
+
+public class DSGraph : ADSNonlinear
+{
+
+}
+
 
 public static class DSLIB
 {
@@ -125,17 +197,17 @@ public static class DSLIB
         return GetValidDataTypes(GetStructureEnum(structureStr));
     }
 
-    public static DSCreationManager.CreationOption[] tryCreate(Structures structure, ref DataStructure target)
+    public static DSCreationManager.CreationOption[] tryCreate(Structures structure, ref ADataStructure target)
     {
         switch (structure)
         {
             case Structures.ARRAY:
-                return DSArray.tryCreate(ref target);
+                return DSArray.partialInitialize(ref target);
             default:
                 return null;
         }
     }
-    public static DSCreationManager.CreationOption[] tryCreate(string structureStr, ref DataStructure target)
+    public static DSCreationManager.CreationOption[] tryCreate(string structureStr, ref ADataStructure target)
     {
         return tryCreate(GetStructureEnum(structureStr), ref target);
     }

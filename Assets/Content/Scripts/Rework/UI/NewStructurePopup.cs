@@ -19,7 +19,7 @@ public class NewStructurePopup : MonoBehaviour
     private DSDropdown typeDropdown;
     [SerializeField]
     private DSCreationManager creationManager;
-    private DataStructure activeStructure;
+    private ADataStructure activeStructure;
 
     [SerializeField]
     public TMP_Dropdown.OptionDataList list;
