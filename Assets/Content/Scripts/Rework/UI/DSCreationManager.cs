@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using TMPro;
 using Unity.VisualScripting;
 using UnityEngine;
+using UnityEngine.Events;
 using UnityEngine.UI;
 
 // TODO: set up option panel generation given list from DataStructure class
@@ -24,27 +25,94 @@ public class DSCreationManager : MonoBehaviour
         BUTTON
     }
 
-    public struct CreationOption
+    public class CreationOption
     {
-        public String text;
-        public OptionType type;
-        public UnityEngine.Events.UnityAction action;
-
-        public CreationOption(String _text, OptionType _type, UnityEngine.Events.UnityAction _action)
+        public abstract class OptionAction
         {
-            text = _text;
-            type = _type;
-            action = _action;
+            public abstract void Invoke();
         }
-
-        public void GetOptionDisplay()
+        public class OANoParam : OptionAction
         {
-            switch (type)
+            public UnityAction action;
+
+            private OANoParam() { }
+            public OANoParam(UnityAction _action)
             {
-                case OptionType.USER_INPUT_TYPE:
-                    break;
+                action = _action;
+            }
+
+            override public void Invoke()
+            {
+                action.Invoke();
             }
         }
+        public class OAParam<T> : OptionAction
+        {
+            public T param;
+            public UnityAction<T> action;
+
+            private OAParam() { }
+            public OAParam(UnityAction<T> _action)
+            {
+                action = _action;
+            }
+            public OAParam(UnityAction<T> _action, T _startParamValue)
+            {
+                action = _action;
+                param = _startParamValue;
+            }
+
+            override public void Invoke()
+            {
+                action.Invoke(param);
+            }
+        }
+
+        public String displayText;
+        public OptionType type;
+        private OptionAction _action;
+
+        public CreationOption(string displayText, OptionType type, OptionAction action)
+        {
+            this.displayText = displayText;
+            this.type = type;
+            this._action = action;
+        }
+
+        public UnityAction tryGetAction()
+        {
+            if (_action is OANoParam)
+                return ((OANoParam)_action).action;
+            return null;
+        }
+
+        public UnityAction<T> tryGetAction<T>()
+        {
+            if (_action is OAParam<T>)
+                return ((OAParam<T>)_action).action;
+            return null;
+        }
+
+        public bool tryUpdateParam<T>(T value)
+        {
+            if (_action is OAParam<T>)
+            {
+                ((OAParam<T>)_action).param = value;
+                return true;
+            }
+
+            return false;
+        }
+    }
+
+    public static CreationOption NewOption(String _optionDisplayText, OptionType _optiontype, UnityAction _action)
+    {
+        return new CreationOption(_optionDisplayText, _optiontype, new CreationOption.OANoParam(_action));
+    }
+
+    public static CreationOption NewOption<T>(String _optionDisplayText, OptionType _optiontype, UnityAction<T> _action)
+    {
+        return new CreationOption(_optionDisplayText, _optiontype, new CreationOption.OAParam<T>(_action));
     }
 
     private void Initialize()
@@ -90,14 +158,14 @@ public class DSCreationManager : MonoBehaviour
 
         // Add finalize button
         finalizeButton = GameObject.Instantiate(DSPrefabs.GetPrefab("Button"), gameObject.transform).GetComponent<DSButton>();
-        finalizeButton.gameObject.name = "Button_" + finalizeOption.text;
+        finalizeButton.gameObject.name = "Button_" + finalizeOption.displayText;
 
         finalizeButton.rect.anchorMax = finalizeButton.rect.anchorMin = finalizeButton.rect.pivot = new Vector2(1,0);
         finalizeButton.rect.anchoredPosition = Vector2.zero;
         finalizeButton.rect.sizeDelta = buttonSize;
 
-        finalizeButton.addListener(finalizeOption.action);
-        finalizeButton.setText(finalizeOption.text);
+        finalizeButton.addListener(finalizeOption.tryGetAction());
+        finalizeButton.setText(finalizeOption.displayText);
 
         // Populate options panel
         float xOffset = margin;
@@ -107,9 +175,9 @@ public class DSCreationManager : MonoBehaviour
             if (option.type == OptionType.BUTTON)
             {
                 var newButton = GameObject.Instantiate(DSPrefabs.GetPrefab("Button"), optionsPanel).GetComponent<DSButton>();
-                newButton.name = $"Button_{option.text}";
-                newButton.addListener(option.action);
-                newButton.setText(option.text);
+                newButton.name = $"Button_{option.displayText}";
+                newButton.addListener(option.tryGetAction());
+                newButton.setText(option.displayText);
 
                 newButton.rect.anchorMin = newButton.rect.anchorMax = newButton.rect.pivot = new Vector2(0, .5f);
                 newButton.rect.anchoredPosition = new Vector2(xOffset, 0);
@@ -135,7 +203,7 @@ public class DSCreationManager : MonoBehaviour
                 case OptionType.BOOL:
                     var toggle = GameObject.Instantiate(DSPrefabs.GetPrefab(DSPrefabs.PrefabEnums.TOGGLE), viewPanel.transform).GetComponent<OPToggle>();
                     toggle.gameObject.name = "Toggle option";
-                    toggle.setText(option.text);
+                    toggle.setText(option.displayText);
                     toggle.addListener(onToggle);
                     toggle.rect.anchoredPosition = Vector2.zero;
                     break;

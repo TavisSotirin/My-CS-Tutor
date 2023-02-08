@@ -68,7 +68,7 @@ public class NewStructurePopup : MonoBehaviour
 
             var creationPanelSize = GetComponent<RectTransform>().sizeDelta;
             creationPanelSize.y -= Mathf.Abs(structDropdown.GetComponent<RectTransform>().anchoredPosition.y) * 2 + structDropdown.GetComponent<RectTransform>().sizeDelta.y;
-            creationManager.setup(options, new DSCreationManager.CreationOption("Finalize", DSCreationManager.OptionType.BUTTON, finalize), creationPanelSize);
+            //creationManager.setup(options, new DSCreationManager.CreationOption("Finalize", DSCreationManager.OptionType.BUTTON, finalize), creationPanelSize);
         }
 
         typeDropdown.setDropdownOptions(DSLIB.GetValidDataTypes(structDropdown.options.ToArray()[value].text));

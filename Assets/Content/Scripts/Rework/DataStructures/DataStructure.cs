@@ -1,5 +1,6 @@
 using System;
 using UnityEngine;
+using UnityEngine.Events;
 
 // ?UPDATE?: Make interface instead of abstract class
 public abstract class ADataStructure
@@ -80,11 +81,12 @@ public class DSArray : ADSStatic
     new public static DSCreationManager.CreationOption[] Instantiate(ref ADataStructure target)
     {
         target = new DSArray();
+
         DSCreationManager.CreationOption[] cOptions = 
-            { 
-            new DSCreationManager.CreationOption("Size",DSCreationManager.OptionType.USER_INPUT_INT, ((DSArray)target).cSize),
-            new DSCreationManager.CreationOption("Dynamic?",DSCreationManager.OptionType.BOOL, ((DSArray)target).cDynamic),
-            new DSCreationManager.CreationOption("Clear",DSCreationManager.OptionType.BUTTON, ((DSArray)target).cClear)
+            {
+            DSCreationManager.NewOption("Size",DSCreationManager.OptionType.USER_INPUT_INT, new UnityAction<int>(((DSArray)target).cSize)),
+            DSCreationManager.NewOption("Size",DSCreationManager.OptionType.BOOL, new UnityAction<bool>(((DSArray)target).cDynamic)),
+            DSCreationManager.NewOption("Size",DSCreationManager.OptionType.BUTTON, ((DSArray)target).cClear)
             };
 
         return cOptions;
@@ -123,19 +125,21 @@ public class DSArray : ADSStatic
         target.Initialize();
     }
 
-    private void cSize()
+    private void cSize(int _size)
     {
-        //print("New array size");
+        length = _size;
+
+        // Run update code for size change in display
     }
 
-    private void cDynamic()
+    private void cDynamic(bool isDynamic)
     {
-        //print("New array location");
+        // TODO: set mem location
     }
 
     private void cClear()
     {
-        //print("Clear creation array");
+        // needed?
     }
 }
 
@@ -248,4 +252,10 @@ public static class DSLIB
     {
         return Instantiate(_structureType, GetDataTypeEnum(_dataTypeStr), ref target);
     }
+}
+
+[System.Serializable]
+public class UnityEventParam<T> : UnityEvent
+{
+    public T paramValue;
 }
