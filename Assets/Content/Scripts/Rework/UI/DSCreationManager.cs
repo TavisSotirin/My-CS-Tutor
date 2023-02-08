@@ -2,6 +2,7 @@ using Mono.Cecil;
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Data.SqlTypes;
 using TMPro;
 using Unity.VisualScripting;
 using UnityEngine;
@@ -9,6 +10,7 @@ using UnityEngine.Events;
 using UnityEngine.UI;
 
 // TODO: set up option panel generation given list from DataStructure class
+[RequireComponent(typeof(RectTransform))]
 public class DSCreationManager : MonoBehaviour
 {
     private RectTransform viewPanel;
@@ -23,6 +25,13 @@ public class DSCreationManager : MonoBehaviour
         BOOL,
         DISPLAY_ONLY,
         BUTTON
+    }
+
+    [AllowsNull]
+    public struct CreationOptionSet
+    {
+        public CreationOption[] options;
+        public CreationOption finalize;
     }
 
     public class CreationOption
@@ -119,7 +128,7 @@ public class DSCreationManager : MonoBehaviour
     {
     }
 
-    public void setup(CreationOption[] options, CreationOption finalizeOption, Vector2 creationPanelsize)
+    public void setup(CreationOptionSet optionSet, Vector2 creationPanelsize)
     {
         var rect = GetComponent<RectTransform>();
         rect.anchorMax = rect.anchorMin = rect.pivot = new Vector2(0.5f, 0);
@@ -158,19 +167,19 @@ public class DSCreationManager : MonoBehaviour
 
         // Add finalize button
         finalizeButton = GameObject.Instantiate(DSPrefabs.GetPrefab("Button"), gameObject.transform).GetComponent<DSButton>();
-        finalizeButton.gameObject.name = "Button_" + finalizeOption.displayText;
+        finalizeButton.gameObject.name = "Button_" + optionSet.finalize.displayText;
 
         finalizeButton.rect.anchorMax = finalizeButton.rect.anchorMin = finalizeButton.rect.pivot = new Vector2(1,0);
         finalizeButton.rect.anchoredPosition = Vector2.zero;
         finalizeButton.rect.sizeDelta = buttonSize;
 
-        finalizeButton.addListener(finalizeOption.tryGetAction());
-        finalizeButton.setText(finalizeOption.displayText);
+        finalizeButton.addListener(optionSet.finalize.tryGetAction());
+        finalizeButton.setText(optionSet.finalize.displayText);
 
         // Populate options panel
         float xOffset = margin;
         
-        foreach (var option in options)
+        foreach (var option in optionSet.options)
         {
             if (option.type == OptionType.BUTTON)
             {
@@ -188,7 +197,7 @@ public class DSCreationManager : MonoBehaviour
         }
 
         // Set default view
-        optionsViewSetup(options, margin, size);
+        optionsViewSetup(optionSet.options, margin, size);
     }
 
     private void optionsViewSetup(CreationOption[] options, float margin, float size)

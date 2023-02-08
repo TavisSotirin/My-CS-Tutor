@@ -1,4 +1,5 @@
 using System;
+using Unity.VisualScripting.FullSerializer;
 using UnityEngine;
 using UnityEngine.Events;
 
@@ -16,6 +17,7 @@ public abstract class ADataStructure
     // Instantiate null ref, Initialize instantiated obj
     public static DSCreationManager.CreationOption[] Instantiate(ref ADataStructure target) { return null; }
     public abstract void Initialize();
+    public abstract void FinalizeCreation();
 
     //public abstract //DrawInstructions draw(ref ADataStructure target);
     protected ISupportStructure supportStructure;
@@ -78,18 +80,22 @@ public class DSArray : ADSStatic
 
     private DSArray() {  }
 
-    new public static DSCreationManager.CreationOption[] Instantiate(ref ADataStructure target)
+    new public static DSCreationManager.CreationOptionSet Instantiate(ref ADataStructure target)
     {
         target = new DSArray();
 
-        DSCreationManager.CreationOption[] cOptions = 
+        DSCreationManager.CreationOptionSet set = new();
+
+        set.options = new DSCreationManager.CreationOption[]
             {
             DSCreationManager.NewOption("Size",DSCreationManager.OptionType.USER_INPUT_INT, new UnityAction<int>(((DSArray)target).cSize)),
-            DSCreationManager.NewOption("Size",DSCreationManager.OptionType.BOOL, new UnityAction<bool>(((DSArray)target).cDynamic)),
-            DSCreationManager.NewOption("Size",DSCreationManager.OptionType.BUTTON, ((DSArray)target).cClear)
+            DSCreationManager.NewOption("Is Dynamic?",DSCreationManager.OptionType.BOOL, new UnityAction<bool>(((DSArray)target).cDynamic)),
+            DSCreationManager.NewOption("Clear",DSCreationManager.OptionType.BUTTON, ((DSArray)target).cClear)
             };
 
-        return cOptions;
+        set.finalize = DSCreationManager.NewOption("Finalize Array", DSCreationManager.OptionType.BUTTON, ((DSArray)target).FinalizeCreation);
+
+        return set;
     }
 
     // TODO: Need to pre-set type and length data from user to correctly create base
@@ -117,6 +123,11 @@ public class DSArray : ADSStatic
         }
     }
 
+    override public void FinalizeCreation()
+    {
+        Debug.Log("Finalize array called");
+    }
+
     public static void ForceInit(ref DSArray target, int _length, DSLIB.DataTypes _type)
     {
         target = new DSArray();
@@ -135,11 +146,13 @@ public class DSArray : ADSStatic
     private void cDynamic(bool isDynamic)
     {
         // TODO: set mem location
+        Debug.Log($"isDynamic in array creation: {isDynamic}");
     }
 
     private void cClear()
     {
         // needed?
+        Debug.Log("Clear in array creation");
     }
 }
 
@@ -227,28 +240,28 @@ public static class DSLIB
         return GetValidDataTypes(GetStructureEnum(structureStr));
     }
 
-    public static DSCreationManager.CreationOption[] Instantiate(Structures _structureType, DataTypes _dataType, ref ADataStructure target)
+    public static DSCreationManager.CreationOptionSet? Instantiate(Structures _structureType, DataTypes _dataType, ref ADataStructure target)
     {
         switch (_structureType)
         {
             case Structures.ARRAY:
-                var options = DSArray.Instantiate(ref target);
+                var set = DSArray.Instantiate(ref target);
                 target.dataType = _dataType;
                 target.structureType = _structureType;
-                return options;
+                return set;
             default:
                 return null;
         }
     }
-    public static DSCreationManager.CreationOption[] Instantiate(string _structureType, string _dataTypeStr, ref ADataStructure target)
+    public static DSCreationManager.CreationOptionSet? Instantiate(string _structureType, string _dataTypeStr, ref ADataStructure target)
     {
         return Instantiate(GetStructureEnum(_structureType), GetDataTypeEnum(_dataTypeStr), ref target);
     }
-    public static DSCreationManager.CreationOption[] Instantiate(string _structureTypeStr, DataTypes _dataType, ref ADataStructure target)
+    public static DSCreationManager.CreationOptionSet? Instantiate(string _structureTypeStr, DataTypes _dataType, ref ADataStructure target)
     {
         return Instantiate(GetStructureEnum(_structureTypeStr), _dataType, ref target);
     }
-    public static DSCreationManager.CreationOption[] Instantiate(Structures _structureType, string _dataTypeStr, ref ADataStructure target)
+    public static DSCreationManager.CreationOptionSet? Instantiate(Structures _structureType, string _dataTypeStr, ref ADataStructure target)
     {
         return Instantiate(_structureType, GetDataTypeEnum(_dataTypeStr), ref target);
     }

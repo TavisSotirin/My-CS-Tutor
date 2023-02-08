@@ -37,9 +37,19 @@ public class DSPrefabs : MonoBehaviour
         {
             if (_instance == null)
             {
-                _instance = GameObject.FindGameObjectWithTag("PrefabManager").GetComponent<DSPrefabs>();
-                if (_instance == null)
-                    throw new Exception("Prefab manager not in scene");
+                var instSearch = GameObject.FindGameObjectWithTag("PrefabManager");
+                if (instSearch == null)
+                {
+                    string path = "Prefabs/PrefabManager";
+                    var prefabManagerPrefab = Resources.Load(path) as GameObject;
+
+                    if (prefabManagerPrefab == null)
+                        throw new Exception("Prefab manager failed to load correctly from resources");
+                    else
+                        _instance = Instantiate(prefabManagerPrefab).GetComponent<DSPrefabs>();
+                }
+                else
+                    _instance = instSearch.GetComponent<DSPrefabs>();
             }
             
             return _instance; 

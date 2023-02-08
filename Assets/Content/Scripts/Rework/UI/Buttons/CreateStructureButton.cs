@@ -3,33 +3,36 @@ using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
+using static DS2;
 
 public class CreateStructureButton : MonoBehaviour
 {
-    public TMP_Dropdown dropdown;
+    public DSLIB.Structures structureType;
+
     private void Awake()
     {
-        Initialize();
-    }
-    private void Initialize()
-    {
-        GetComponentInChildren<Button>().onClick.AddListener(onClick);
+        GetComponent<Button>().onClick.AddListener(onClick);
     }
 
     public void onClick()
     {
-        switch(dropdown.options[dropdown.value].text)
+        // Parent under canvas
+        GameObject creationManagerGO = new("DSCreationManager_"+structureType.ToString());
+        creationManagerGO.transform.SetParent(transform.parent);
+        var creationManager = creationManagerGO.AddComponent<DSCreationManager>();
+
+        ADataStructure structure = null;
+
+        switch(structureType)
         {
-            case "Array":
-                print("Create array");
+            case DSLIB.Structures.ARRAY:
+                creationManager.setup(DSArray.Instantiate(ref structure), new Vector2(500, 500));
                 break;
-            case "Linked List":
-                print("Create linked list");
+            case DSLIB.Structures.LINKED_LIST:
+                print("Implement LL creation menu");
+                //creationManager.setup(DSArray.Instantiate(ref structure), null, new Vector2(500, 500));
                 break;
-            case "Tree":
-                print("Create tree");
-                break;
-            
         }
+        
     }
 }
