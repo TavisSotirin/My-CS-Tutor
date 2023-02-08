@@ -174,6 +174,7 @@ public class DSCreationManager : MonoBehaviour
         finalizeButton.rect.sizeDelta = buttonSize;
 
         finalizeButton.addListener(optionSet.finalize.tryGetAction());
+        finalizeButton.addListener(() => { GameObject.Destroy(this.gameObject); });
         finalizeButton.setText(optionSet.finalize.displayText);
 
         // Populate options panel
@@ -206,15 +207,15 @@ public class DSCreationManager : MonoBehaviour
         {
             switch (option.type)
             {
-                case OptionType.USER_INPUT_INT:
-                    print("USER_INPUT_INT option type");
-                    break;
                 case OptionType.BOOL:
                     var toggle = GameObject.Instantiate(DSPrefabs.GetPrefab(DSPrefabs.PrefabEnums.TOGGLE), viewPanel.transform).GetComponent<OPToggle>();
                     toggle.gameObject.name = "Toggle option";
                     toggle.setText(option.displayText);
                     toggle.addListener(onToggle);
                     toggle.rect.anchoredPosition = Vector2.zero;
+                    break;
+                default:
+                    print("Option type - " + option.type.ToString());
                     break;
             }
         }
