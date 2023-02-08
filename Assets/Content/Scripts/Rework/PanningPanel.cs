@@ -16,9 +16,11 @@ public class PanningPanel : MonoBehaviour, IScrollHandler, IBeginDragHandler, ID
 {
     [SerializeField]
     private GameObject viewport;
-    [SerializeField]
-    private RectTransform viewportLLCorner;
     private RectTransform viewRect;
+    [SerializeField]
+    private GameObject backOverlay;
+    [SerializeField]
+    private GameObject frontOverlay;
 
     public float minScale = 0.5f;
     public float maxScale = 10f;
@@ -37,7 +39,8 @@ public class PanningPanel : MonoBehaviour, IScrollHandler, IBeginDragHandler, ID
         viewRect.sizeDelta = GetComponent<RectTransform>().sizeDelta;
         viewRect.anchoredPosition = Vector2.zero;
 
-        DEBUG_BuildStruct();
+        //DEBUG_BuildStruct();
+        AddStableTextBack("Structure Type");
     }
 
     public GameObject NodePrefab;
@@ -122,6 +125,7 @@ public class PanningPanel : MonoBehaviour, IScrollHandler, IBeginDragHandler, ID
 
         var upNewPos = newPos + viewRect.sizeDelta * viewRect.localScale;
 
+        /*
         if (upCorner.x > upNewPos.x)
             newPos.x = upCorner.x;
         if (upCorner.y > upNewPos.y)
@@ -130,6 +134,7 @@ public class PanningPanel : MonoBehaviour, IScrollHandler, IBeginDragHandler, ID
             newPos.x = lowCorner.x;
         if (lowCorner.y >= newPos.y)
             newPos.y = lowCorner.y;
+        */
 
         viewRect.position = newPos;
     }
@@ -139,8 +144,14 @@ public class PanningPanel : MonoBehaviour, IScrollHandler, IBeginDragHandler, ID
         //print($"Pan panel drag end - {viewRect.position}");
     }
 
-    private void Update()
+    public void AddStableTextBack(string _text)
     {
-        
+        var newText = backOverlay.AddComponent<TextMeshProUGUI>();
+        newText.text = _text;
+
+        newText.enableAutoSizing = true;
+        newText.alignment = TextAlignmentOptions.Center;
+        newText.fontSizeMin = 6;
+        newText.color = new(1, 1, 1, .4f);
     }
 }

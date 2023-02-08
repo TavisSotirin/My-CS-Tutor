@@ -1,28 +1,20 @@
 using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Linq;
-using System.Runtime;
-using Unity.VisualScripting;
 using UnityEngine;
-using UnityEngine.EventSystems;
-using UnityEngine.Rendering;
-using UnityEngine.UIElements;
-using static ADSStatic;
 
-// ?UPDATE?: Make interface insteaad of abstract class
+// ?UPDATE?: Make interface instead of abstract class
 public abstract class ADataStructure
 {
     // Valid options this structure can accomodate
     // ?UPDATE?: Currently stored on individual structures, but some may be redundant. Consider consolidated static storage in DSLIB
-    public virtual DSLIB.Structures structureType { get; }
+    public virtual DSLIB.Structures structureType { get; set; }
+    public virtual DSLIB.DataTypes dataType { get; set; }
     public virtual DSLIB.DataTypes[] dataTypes { get; }
     public virtual DSLIB.SortAlgorithms[] sortAlgorithms { get; }
     public virtual DSLIB.SearchAlgorithms[] searchAlgorithms { get; }
 
-    // Instantiate null ref, Initialize instantiated ref
+    // Instantiate null ref, Initialize instantiated obj
     public static DSCreationManager.CreationOption[] Instantiate(ref ADataStructure target) { return null; }
-    public abstract void Initialize(ref ADataStructure target);
+    public abstract void Initialize();
 
     //public abstract //DrawInstructions draw(ref ADataStructure target);
     protected ISupportStructure supportStructure;
@@ -33,9 +25,19 @@ public interface ISupportStructure
 
 }
 
-public abstract class ADSLinear : ADataStructure
+public interface IDisplayableStructure
+{
+    public GameObject getDisplayNodePrefab();
+}
+
+public abstract class ADSLinear : ADataStructure, IDisplayableStructure
 {
     public int length { get; protected set; }
+
+    public GameObject getDisplayNodePrefab()
+    {
+        return DSPrefabs.GetPrefab(DSPrefabs.PrefabEnums.VIEWNODE_LINEAR);
+    }
 }
 
 public abstract class ADSStatic : ADSLinear
@@ -88,20 +90,37 @@ public class DSArray : ADSStatic
         return cOptions;
     }
 
-    // TODO: Need to get type and length data from user to correctly create base
-    override public void Initialize(ref ADataStructure target)
+    // TODO: Need to pre-set type and length data from user to correctly create base
+    override public void Initialize()
     {
-        if (target is DSArray)
+        switch (dataType)
         {
-            base.Initialize<int>();
+            case DSLIB.DataTypes.BOOL:
+                base.Initialize<bool>();
+                break;
+            case DSLIB.DataTypes.STRING:
+                base.Initialize<string>();
+                break;
+            case DSLIB.DataTypes.CHAR:
+                base.Initialize<char>();
+                break;
+            case DSLIB.DataTypes.FLOAT:
+                base.Initialize<float>();
+                break;
+            case DSLIB.DataTypes.INT:
+                base.Initialize<int>();
+                break;
+            default:
+                throw new Exception("Attempted to initialize DSArray with invalid DataType");
         }
-        else
-            throw new Exception("Invalid structure passed to DSArray Init");
     }
 
-    public static void ForceInit(ref DSArray target, int _length)
+    public static void ForceInit(ref DSArray target, int _length, DSLIB.DataTypes _type)
     {
-        
+        target = new DSArray();
+        target.length = _length;
+        target.dataType = _type;
+        target.Initialize();
     }
 
     private void cSize()
@@ -117,10 +136,10 @@ public class DSArray : ADSStatic
     private void cClear()
     {
         //print("Clear creation array");
-        throw new Exception("IT WORKED BUTTON ERROR ON CLEAR FROM OPTIONS!");
     }
 }
 
+/*
 public class DSLinkedList : ADSDynamic
 {
 
@@ -135,7 +154,7 @@ public class DSGraph : ADSNonlinear
 {
 
 }
-
+*/
 
 public static class DSLIB
 {
@@ -183,6 +202,13 @@ public static class DSLIB
         return outStruct;
     }
 
+    public static DataTypes GetDataTypeEnum(string dataTypeString)
+    {
+        DataTypes outStruct;
+        Enum.TryParse<DataTypes>(dataTypeString, out outStruct);
+        return outStruct;
+    }
+
     // Update switch cases when restricted types are needed
     public static DataTypes[] GetValidDataTypes(Structures structure)
     {
@@ -197,18 +223,29 @@ public static class DSLIB
         return GetValidDataTypes(GetStructureEnum(structureStr));
     }
 
-    public static DSCreationManager.CreationOption[] tryCreate(Structures structure, ref ADataStructure target)
+    public static DSCreationManager.CreationOption[] Instantiate(Structures _structureType, DataTypes _dataType, ref ADataStructure target)
     {
-        switch (structure)
+        switch (_structureType)
         {
             case Structures.ARRAY:
-                return DSArray.partialInitialize(ref target);
+                var options = DSArray.Instantiate(ref target);
+                target.dataType = _dataType;
+                target.structureType = _structureType;
+                return options;
             default:
                 return null;
         }
     }
-    public static DSCreationManager.CreationOption[] tryCreate(string structureStr, ref ADataStructure target)
+    public static DSCreationManager.CreationOption[] Instantiate(string _structureType, string _dataTypeStr, ref ADataStructure target)
     {
-        return tryCreate(GetStructureEnum(structureStr), ref target);
+        return Instantiate(GetStructureEnum(_structureType), GetDataTypeEnum(_dataTypeStr), ref target);
+    }
+    public static DSCreationManager.CreationOption[] Instantiate(string _structureTypeStr, DataTypes _dataType, ref ADataStructure target)
+    {
+        return Instantiate(GetStructureEnum(_structureTypeStr), _dataType, ref target);
+    }
+    public static DSCreationManager.CreationOption[] Instantiate(Structures _structureType, string _dataTypeStr, ref ADataStructure target)
+    {
+        return Instantiate(_structureType, GetDataTypeEnum(_dataTypeStr), ref target);
     }
 }

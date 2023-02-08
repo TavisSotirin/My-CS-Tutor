@@ -36,6 +36,15 @@ public class DSCreationManager : MonoBehaviour
             type = _type;
             action = _action;
         }
+
+        public void GetOptionDisplay()
+        {
+            switch (type)
+            {
+                case OptionType.USER_INPUT_TYPE:
+                    break;
+            }
+        }
     }
 
     private void Initialize()
@@ -95,19 +104,48 @@ public class DSCreationManager : MonoBehaviour
         
         foreach (var option in options)
         {
-            var newButton = GameObject.Instantiate(DSPrefabs.GetPrefab("Button"), optionsPanel).GetComponent<DSButton>();
-            newButton.name = $"Button_{option.text}";
-            newButton.addListener(option.action);
-            newButton.setText(option.text);
+            if (option.type == OptionType.BUTTON)
+            {
+                var newButton = GameObject.Instantiate(DSPrefabs.GetPrefab("Button"), optionsPanel).GetComponent<DSButton>();
+                newButton.name = $"Button_{option.text}";
+                newButton.addListener(option.action);
+                newButton.setText(option.text);
 
-            newButton.rect.anchorMin = newButton.rect.anchorMax = newButton.rect.pivot = new Vector2(0, .5f);
-            newButton.rect.anchoredPosition = new Vector2(xOffset, 0);
-            newButton.rect.sizeDelta = buttonSize * .75f;
+                newButton.rect.anchorMin = newButton.rect.anchorMax = newButton.rect.pivot = new Vector2(0, .5f);
+                newButton.rect.anchoredPosition = new Vector2(xOffset, 0);
+                newButton.rect.sizeDelta = buttonSize * .75f;
 
-            xOffset += margin + size;
+                xOffset += margin + size;
+            }
         }
-        
 
         // Set default view
+        optionsViewSetup(options, margin, size);
+    }
+
+    private void optionsViewSetup(CreationOption[] options, float margin, float size)
+    {
+        foreach (var option in options)
+        {
+            switch (option.type)
+            {
+                case OptionType.USER_INPUT_INT:
+                    print("USER_INPUT_INT option type");
+                    break;
+                case OptionType.BOOL:
+                    var toggle = GameObject.Instantiate(DSPrefabs.GetPrefab(DSPrefabs.PrefabEnums.TOGGLE), viewPanel.transform).GetComponent<OPToggle>();
+                    toggle.gameObject.name = "Toggle option";
+                    toggle.setText(option.text);
+                    toggle.addListener(onToggle);
+                    toggle.rect.anchoredPosition = Vector2.zero;
+                    break;
+            }
+        }
+    }
+
+    public void onToggle(bool value)
+    {
+        print((value ? "Toggled on" : "Toggle off") + " - called on " + this.gameObject.name);
     }
 }
+

@@ -64,8 +64,7 @@ public class NewStructurePopup : MonoBehaviour
             typeDropdown.setDropdownOptions(Enum.GetNames(typeof(DSLIB.DataTypes)));
             typeDropdown.interactable = true;
 
-            var options = DSLIB.tryCreate(structDropdown.options.ToArray()[value].text, ref activeStructure);
-            print(activeStructure.structureType);
+            var options = DSLIB.Instantiate(structDropdown.options.ToArray()[value].text, typeDropdown.options.ToArray()[typeDropdown.value].text, ref activeStructure);
 
             var creationPanelSize = GetComponent<RectTransform>().sizeDelta;
             creationPanelSize.y -= Mathf.Abs(structDropdown.GetComponent<RectTransform>().anchoredPosition.y) * 2 + structDropdown.GetComponent<RectTransform>().sizeDelta.y;

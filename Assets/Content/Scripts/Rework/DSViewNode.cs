@@ -1,13 +1,9 @@
-using System.Collections;
-using System.Collections.Generic;
 using TMPro;
-using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
-[RequireComponent(typeof(Button))]
-public class DSViewNode : MonoBehaviour, IPointerDownHandler, IPointerUpHandler, IPointerEnterHandler, IPointerExitHandler
+public class DSViewNode : MonoBehaviour, IPointerDownHandler, IPointerUpHandler, IPointerEnterHandler, IPointerExitHandler, IDSSelectable
 {
     [SerializeField]
     private Button viewNode;
@@ -26,7 +22,6 @@ public class DSViewNode : MonoBehaviour, IPointerDownHandler, IPointerUpHandler,
     {
         viewNode.image.color = Color.white;
     }
-
 
     public Bounds bounds 
     { 
@@ -87,5 +82,18 @@ public class DSViewNode : MonoBehaviour, IPointerDownHandler, IPointerUpHandler,
     private void setCaptionVisibility(bool isVisible)
     {
         captionText.gameObject.SetActive(isVisible);
+    }
+}
+
+public interface IDSSelectable : ISelectHandler, IDeselectHandler
+{
+    void ISelectHandler.OnSelect(BaseEventData eventData)
+    {
+        Debug.Log($"OnSelect selectable interface called.\nObj: {eventData.selectedObject.name}");
+    }
+
+    void IDeselectHandler.OnDeselect(BaseEventData eventData)
+    {
+        Debug.Log($"OnDeselect selectable interface called.\nObj: {eventData.selectedObject.name}");
     }
 }

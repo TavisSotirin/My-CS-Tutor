@@ -10,9 +10,19 @@ using UnityEngine;
 public class DSPrefabs : MonoBehaviour
 {
     [Serializable]
+    public enum PrefabEnums
+    {
+        BUTTON,
+        PANNING_PANEL,
+        VIEWNODE_LINEAR,
+        TOGGLE
+    }
+
+    [Serializable]
     public struct PrefabStruct
     {
-        public string name;
+        public string name { get { return prefabEnum.ToString(); } }
+        public PrefabEnums prefabEnum;
         public GameObject prefab;
     }
 
@@ -47,7 +57,15 @@ public class DSPrefabs : MonoBehaviour
     public static GameObject GetPrefab(string name)
     {
         foreach (var pStruct in DSPrefabs.Instance.prefabs)
-            if (pStruct.name == name)
+            if (pStruct.name.ToLower() == name.ToLower())
+                return pStruct.prefab;
+        return null;
+    }
+
+    public static GameObject GetPrefab(PrefabEnums _prefabEnum)
+    {
+        foreach (var pStruct in DSPrefabs.Instance.prefabs)
+            if (pStruct.prefabEnum == _prefabEnum)
                 return pStruct.prefab;
         return null;
     }
