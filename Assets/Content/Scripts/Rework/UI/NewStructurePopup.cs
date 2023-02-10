@@ -39,12 +39,13 @@ public class NewStructurePopup : MonoBehaviour
         
         structDropdown.onValueChanged.AddListener(onStructChange);
         structDropdown.setDropdownOptions(new string[] { "Choose Structure" });
-        structDropdown.onClickExternal = () =>
+        structDropdown.setClickEvent(() =>
             {
                 structDropdown.setDropdownOptions(Enum.GetNames(typeof(DSLIB.Structures)));
                 onStructChange(0);
-                structDropdown.onClickExternal = null;
-            };
+                structDropdown.setClickEvent(null);
+            }
+        );
 
         typeDropdown.onValueChanged.AddListener(onTypeChange);
         typeDropdown.setDropdownOptions(new string[] { "Choose Type" });

@@ -27,7 +27,22 @@ public class DSCreationManager : MonoBehaviour
         BUTTON
     }
 
-    [AllowsNull]
+    public enum OType
+    {
+        CONFIRM,
+        CANCEL,
+        TOGGLE,
+        BUTTON,
+        DROPDOWN,
+        DISPLAY_TEXT,
+        ENTRY_TEXT,
+        ENTRY_NUM,
+        TO_BE_IMPLEMENTED
+    }
+
+    // Build data for this option panel
+     
+
     public struct CreationOptionSet
     {
         public CreationOption[] options;
@@ -201,6 +216,7 @@ public class DSCreationManager : MonoBehaviour
         optionsViewSetup(optionSet.options, margin, size);
     }
 
+    // TODO: Update option layout and add other option prefabs/types
     private void optionsViewSetup(CreationOption[] options, float margin, float size)
     {
         foreach (var option in options)
@@ -211,8 +227,15 @@ public class DSCreationManager : MonoBehaviour
                     var toggle = GameObject.Instantiate(DSPrefabs.GetPrefab(DSPrefabs.PrefabEnums.TOGGLE), viewPanel.transform).GetComponent<OPToggle>();
                     toggle.gameObject.name = "Toggle option";
                     toggle.setText(option.displayText);
-                    toggle.addListener(onToggle);
+                    //toggle.addListener(onToggle);
                     toggle.rect.anchoredPosition = Vector2.zero;
+                    break;
+                case OptionType.USER_INPUT_TYPE:
+                    var dropdown = GameObject.Instantiate(DSPrefabs.GetPrefab(DSPrefabs.PrefabEnums.DROPDOWN), viewPanel.transform).GetComponent<DSDropdown>();
+                    dropdown.gameObject.name = "Dropdown option";
+                    dropdown.setDropdownOptions(Enum.GetNames(typeof(DSLIB.DataTypes)));
+                    dropdown.setClickEvent(() => { print("Lambda function running on option dropdown click"); });
+                    dropdown.GetComponent<RectTransform>().anchoredPosition = Vector2.zero;
                     break;
                 default:
                     print("Option type - " + option.type.ToString());
@@ -221,9 +244,10 @@ public class DSCreationManager : MonoBehaviour
         }
     }
 
-    public void onToggle(bool value)
+    // Add option to build list
+    public void addOption(OType _optionType)
     {
-        print((value ? "Toggled on" : "Toggle off") + " - called on " + this.gameObject.name);
+
     }
 }
 

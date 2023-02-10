@@ -1,4 +1,5 @@
 using System;
+using Unity.VisualScripting;
 using Unity.VisualScripting.FullSerializer;
 using UnityEngine;
 using UnityEngine.Events;
@@ -89,13 +90,19 @@ public class DSArray : ADSStatic
         set.options = new DSCreationManager.CreationOption[]
             {
             DSCreationManager.NewOption("Size",DSCreationManager.OptionType.USER_INPUT_INT, new UnityAction<int>(((DSArray)target).cSize)),
-            DSCreationManager.NewOption("Is Dynamic?",DSCreationManager.OptionType.BOOL, new UnityAction<bool>(((DSArray)target).cDynamic)),
+            //DSCreationManager.NewOption("Is Dynamic?",DSCreationManager.OptionType.BOOL, new UnityAction<bool>(((DSArray)target).cDynamic)),
+            DSCreationManager.NewOption("Dropdown",DSCreationManager.OptionType.USER_INPUT_TYPE, ((DSArray)target).test),
             DSCreationManager.NewOption("Clear",DSCreationManager.OptionType.BUTTON, ((DSArray)target).cClear)
             };
 
         set.finalize = DSCreationManager.NewOption("Finalize Array", DSCreationManager.OptionType.BUTTON, ((DSArray)target).FinalizeCreation);
 
         return set;
+    }
+
+    public void test()
+    {
+        Debug.Log("Test");
     }
 
     // TODO: Need to pre-set type and length data from user to correctly create base

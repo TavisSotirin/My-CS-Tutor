@@ -15,7 +15,9 @@ public class DSPrefabs : MonoBehaviour
         BUTTON,
         PANNING_PANEL,
         VIEWNODE_LINEAR,
-        TOGGLE
+        TOGGLE,
+        DROPDOWN,
+        DEBUG_COLOR_PANEL
     }
 
     [Serializable]

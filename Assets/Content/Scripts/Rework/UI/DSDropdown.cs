@@ -3,16 +3,22 @@ using System.Collections;
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
+using UnityEngine.Events;
 using UnityEngine.EventSystems;
 
 public class DSDropdown : TMP_Dropdown
 {
-    public UnityEngine.Events.UnityAction onClickExternal = null;
+    private UnityEngine.Events.UnityAction onClickExternal = null;
     override public void OnPointerClick(PointerEventData eventData)
     {
         if (onClickExternal != null)
             onClickExternal();
         Show();
+    }
+
+    public void setClickEvent(UnityAction action)
+    {
+        onClickExternal = action;
     }
 
     public void setDropdownOptions(string[] listOptions, bool notify = true)
